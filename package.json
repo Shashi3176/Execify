@@ -13,12 +13,14 @@
     "monaco-editor": "^0.55.1",
     "mongoose": "^9.7.1",
     "next": "14.2.35",
+    "pidusage": "^4.0.1",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
     "@types/mongoose": "^5.11.96",
-    "@types/node": "^20",
+    "@types/node": "^20.19.43",
+    "@types/pidusage": "^2.0.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
