@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import SchedulingComparison from "@/components/SchedulingComparison";
+
+interface ComparisonStats {
+  totalJobs: number;
+  avgWaitTime: number;
+  avgTurnaroundTime: number;
+  avgExecutionTime: number;
+}
 
 function timeAgo(iso: string | undefined) {
   if (!iso) return "just now";
@@ -21,10 +29,15 @@ export default function DashboardPage() {
   const [queueMode, setQueueMode] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<any>(null);
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
+  const [comparisonData, setComparisonData] = useState<{
+    fifo: ComparisonStats;
+    priority: ComparisonStats;
+  } | null>(null);
 
   const [isLoadingPool, setIsLoadingPool] = useState(false);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+  const [isLoadingComparison, setIsLoadingComparison] = useState(true);
   const [poolError, setPoolError] = useState<string | null>(null);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   const [jobsError, setJobsError] = useState<string | null>(null);
@@ -89,12 +102,25 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const fetchComparison = useCallback(async () => {
+    try {
+      const res = await fetch("/api/analytics/comparison");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setComparisonData(data);
+    } catch {
+      // Silently ignore — component handles null data gracefully
+    } finally {
+      setIsLoadingComparison(false);
+    }
+  }, []);
+
   const refreshAll = useCallback(async () => {
     setIsRefreshing(true);
-    await Promise.all([fetchPoolStatus(), fetchAnalytics(), fetchJobs()]);
+    await Promise.all([fetchPoolStatus(), fetchAnalytics(), fetchJobs(), fetchComparison()]);
     setLastRefresh(new Date().toISOString());
     setIsRefreshing(false);
-  }, [fetchPoolStatus, fetchAnalytics, fetchJobs]);
+  }, [fetchPoolStatus, fetchAnalytics, fetchJobs, fetchComparison]);
 
   refreshAllRef.current = refreshAll;
   refreshAllRef2.current = refreshAll;
@@ -207,6 +233,11 @@ export default function DashboardPage() {
           </div>
 
           <AnalyticsCards analytics={analytics} isLoading={isLoadingAnalytics} />
+
+          <SchedulingComparison
+            data={comparisonData}
+            isLoading={isLoadingComparison}
+          />
 
           <ActivityFeed
             jobs={recentJobs}
