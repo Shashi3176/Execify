@@ -3,11 +3,17 @@ import { connectDB } from '../../../lib/db'
 import { JobModel } from '@/models/Job'
 import workerPool from '@/lib/workerPool'
 
-export async function POST(request: Request) {
+interface SubmitBody {
+  code: string;
+  language?: string;
+  priority?: number;
+}
+
+export async function POST(request: Request): Promise<NextResponse> {
   try {
     await connectDB()
     
-    const body = await request.json()
+    const body: SubmitBody = await request.json()
     const { code, language, priority } = body
     
     // Validate
@@ -34,9 +40,10 @@ export async function POST(request: Request) {
       success: true,
       jobId: job._id.toString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: message },
       { status: 500 }
     )
   }

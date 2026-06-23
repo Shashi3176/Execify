@@ -71,7 +71,7 @@ export default function JobDetailModal({ job, onClose, isOpen }: JobDetailModalP
       )}
       <div
         className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl border border-gray-700 bg-gray-900 p-6"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">Job Details</h2>

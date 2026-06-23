@@ -100,7 +100,7 @@ export default function ControlPanel({
           max="10"
           step="1"
           value={sliderValue}
-          onChange={(e) => setSliderValue(parseInt(e.target.value))}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSliderValue(parseInt(e.target.value))}
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
         />
 

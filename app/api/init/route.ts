@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import workerPool from '@/lib/workerPool'
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     await workerPool.recoverOrphanedJobs()
     
@@ -9,9 +9,10 @@ export async function GET() {
       success: true,
       message: 'Worker pool initialized'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: message },
       { status: 500 }
     )
   }

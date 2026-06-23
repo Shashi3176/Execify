@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import workerPool from '@/lib/workerPool';
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
       const status = workerPool.getStatus();
 
@@ -9,10 +9,11 @@ export async function GET() {
         success: true,
         PoolStatus: status
       })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({
         success: false,
-        error: error.message 
+        error: message 
       },
       { status: 500 }
     )

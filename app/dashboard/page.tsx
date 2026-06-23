@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useToast } from '@/hooks/useToast'
+import { DashboardGridSkeleton, PoolStatusSkeleton } from '@/components/Skeleton'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import SchedulingComparison from "@/components/SchedulingComparison";
 
 interface ComparisonStats {
@@ -27,8 +30,8 @@ export default function DashboardPage() {
     activeJobIds: string[];
   } | null>(null);
   const [queueMode, setQueueMode] = useState<string | null>(null);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [recentJobs, setRecentJobs] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<unknown>(null);
+  const [recentJobs, setRecentJobs] = useState<unknown[]>([]);
   const [comparisonData, setComparisonData] = useState<{
     fifo: ComparisonStats;
     priority: ComparisonStats;
@@ -47,6 +50,7 @@ export default function DashboardPage() {
 
   const refreshAllRef = useRef<(() => void) | null>(null);
   const refreshAllRef2 = useRef<(() => void) | null>(null);
+  const { showToast } = useToast()
 
   const fetchPoolStatus = useCallback(async () => {
     try {
@@ -55,8 +59,8 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setPoolStatus(data);
-    } catch (err: any) {
-      setPoolError(err.message ?? "Failed to load pool status");
+    } catch (error: unknown) {
+      setPoolError(error instanceof Error ? error.message ?? "Failed to load pool status" : "Failed to load pool status");
     }
   }, []);
 
@@ -78,8 +82,8 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setAnalytics(data);
-    } catch (err: any) {
-      setAnalyticsError(err.message ?? "Failed to load analytics");
+    } catch (error: unknown) {
+      setAnalyticsError(error instanceof Error ? error.message ?? "Failed to load analytics" : "Failed to load analytics");
     }
   }, []);
 
@@ -90,15 +94,15 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      let jobs: any[] = Array.isArray(data) ? data : data?.jobs ?? [];
+      let jobs: unknown[] = Array.isArray(data) ? data : data?.jobs ?? [];
       jobs.sort(
         (a, b) =>
-          new Date(b.queuedAt ?? b.createdAt ?? 0).getTime() -
-          new Date(a.queuedAt ?? a.createdAt ?? 0).getTime()
+          new Date((b as Record<string, unknown>).queuedAt ?? (b as Record<string, unknown>).createdAt ?? 0).getTime() -
+          new Date((a as Record<string, unknown>).queuedAt ?? (a as Record<string, unknown>).createdAt ?? 0).getTime()
       );
       setRecentJobs(jobs.slice(0, 10));
-    } catch (err: any) {
-      setJobsError(err.message ?? "Failed to load jobs");
+    } catch (error: unknown) {
+      setJobsError(error instanceof Error ? error.message ?? "Failed to load jobs" : "Failed to load jobs");
     }
   }, []);
 
@@ -133,6 +137,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ maxConcurrent }),
       });
       await fetchPoolStatus();
+      showToast('Max concurrency updated', 'info')
     },
     [fetchPoolStatus]
   );
@@ -145,6 +150,7 @@ export default function DashboardPage() {
         body: JSON.stringify({ mode }),
       });
       await fetchQueueMode();
+      showToast('Queue mode updated', 'info')
     },
     [fetchQueueMode]
   );
@@ -163,7 +169,8 @@ export default function DashboardPage() {
   }, [fetchPoolStatus, fetchQueueMode]);
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-200">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#070b14] text-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4 mb-8">
           <div>
@@ -215,10 +222,14 @@ export default function DashboardPage() {
         <div className="grid gap-6">
           <div className="grid gap-6 lg:grid-cols-12">
             <div className="lg:col-span-5">
-              <PoolStatusCard
-                status={poolStatus}
-                isLoading={isLoadingPool}
-              />
+              {isLoadingPool && !poolStatus ? (
+                <PoolStatusSkeleton />
+              ) : (
+                <PoolStatusCard
+                  status={poolStatus}
+                  isLoading={isLoadingPool}
+                />
+              )}
             </div>
             <div className="lg:col-span-7">
               <ControlPanel
@@ -232,7 +243,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <AnalyticsCards analytics={analytics} isLoading={isLoadingAnalytics} />
+          {isLoadingAnalytics && !analytics ? (
+            <DashboardGridSkeleton />
+          ) : (
+            <AnalyticsCards analytics={analytics} isLoading={isLoadingAnalytics} />
+          )}
 
           <SchedulingComparison
             data={comparisonData}
@@ -245,6 +260,6 @@ export default function DashboardPage() {
           />
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }

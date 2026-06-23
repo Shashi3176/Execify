@@ -31,13 +31,11 @@ export default function JobStatusCard({ jobId }: JobStatusCardProps) {
 
     eventSource.onopen = () => {
       setIsConnected(true)
-      console.log('SSE connection opened')
     }
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data)
       setJobStatus(data)
-      console.log('SSE update:', data)
 
       // Close connection when job is finished
       if (data.status === 'completed' || data.status === 'failed') {

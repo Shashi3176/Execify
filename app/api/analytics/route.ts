@@ -4,7 +4,7 @@ import { connectDB } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     await connectDB();
 
@@ -97,9 +97,10 @@ export async function GET() {
         avgQueueWaitTime,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: message },
       { status: 500 },
     );
   }

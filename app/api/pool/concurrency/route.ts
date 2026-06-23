@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import workerPool from '@/lib/workerPool';
 
-export async function PUT(request: Request) {
-  try {
-      const {maxConcurrent} = await request.json();
+interface ConcurrencyBody {
+  maxConcurrent: number;
+}
 
-      if(!maxConcurrent || maxConcurrent < 1){
+export async function PUT(request: Request): Promise<NextResponse> {
+  try {
+      const body: ConcurrencyBody = await request.json();
+      const { maxConcurrent } = body;
+
+      if (!maxConcurrent || maxConcurrent < 1) {
         return NextResponse.json({
           success: false,
           error: 'Invalid concurrency value' 
@@ -19,9 +24,10 @@ export async function PUT(request: Request) {
           success: true,
           message: `Concurrency updated to ${maxConcurrent}`
         })
-  } catch (error: any) {
-      return NextResponse.json(
-      { success: false, error: error.message },
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      { success: false, error: message },
       { status: 500 }
     )
   }
