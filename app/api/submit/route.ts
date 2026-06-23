@@ -1,44 +1,43 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { connectDB } from '@/lib/db';
-import { JobModel } from '@/models/Job';
+import { NextResponse } from 'next/server'
+import { connectDB } from '../../../lib/db'
+import { JobModel } from '@/models/Job'
+import workerPool from '@/lib/workerPool'
 
-interface SubmitBody {
-  code: string;
-  language: 'javascript' | 'python';
-  priority: number;
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { code, language, priority }: SubmitBody = body;
-
-    if (!code || typeof code !== 'string' || !code.trim()) {
+    await connectDB()
+    
+    const body = await request.json()
+    const { code, language, priority } = body
+    
+    // Validate
+    if (!code || !code.trim()) {
       return NextResponse.json(
-        { success: false, error: 'Code is required and cannot be empty' },
+        { success: false, error: 'Code is required' },
         { status: 400 }
-      );
+      )
     }
-
-    await connectDB();
-
-    const job = new JobModel({
+    
+    // Create job in database
+    const job = await JobModel.create({
       code,
-      language,
-      priority,
+      language: language || 'javascript',
+      priority: priority || 3,
       status: 'queued',
-      schedulingMode: 'fifo',
-      queuedAt: new Date(),
-    });
-
-    await job.save();
-
-    return NextResponse.json({ success: true, jobId: job._id.toString() });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Internal server error';
+      schedulingMode: workerPool.getStatus().mode
+    })
+    
+    // Submit to worker pool
+    await workerPool.submit(job._id.toString())
+    
+    return NextResponse.json({
+      success: true,
+      jobId: job._id.toString()
+    })
+  } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: message },
+      { success: false, error: error.message },
       { status: 500 }
-    );
+    )
   }
 }
