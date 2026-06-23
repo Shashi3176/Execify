@@ -15,6 +15,7 @@ interface JobDocument extends Document {
   priority: number;
   queuePosition?: number;
   schedulingMode: 'fifo' | 'priority';
+  queueMode: { type: String, enum: ['fifo', 'priority'], default: 'fifo', index: true };
 }
 
 const jobSchema = new Schema<JobDocument>(

@@ -62,6 +62,11 @@ class WorkerPool{
         this.activeJobs.set(jobId,{startedAt: new Date()})
         
         try {
+            await connectDB()
+            await JobModel.findByIdAndUpdate(jobId, {
+                schedulingMode: this.mode
+            })
+            
             await executeJob(jobId)
         } catch (error) {
             console.error(`Error executing job ${jobId}: `, error)

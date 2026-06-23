@@ -20,6 +20,14 @@ export async function GET() {
             { $match: { status: 'failed' } },
             { $count: 'count' },
           ],
+          queued: [
+            { $match: { status: 'queued' } },
+            { $count: 'count' },
+          ],
+          running: [
+            { $match: { status: 'running' } },
+            { $count: 'count' },
+          ],
           avgExecutionTime: [
             { $match: { status: 'completed' } },
             { $group: { _id: null, avg: { $avg: '$executionTime' } } },
@@ -48,13 +56,16 @@ export async function GET() {
     ]);
 
     const data = result[0];
-    const totalSubmissions = data.total[0]?.count ?? 0;
-    const completed = data.completed[0]?.count ?? 0;
-    const failed = data.failed[0]?.count ?? 0;
+    const totalJobs = data.total[0]?.count ?? 0;
+    const completedJobs = data.completed[0]?.count ?? 0;
+    const failedJobs = data.failed[0]?.count ?? 0;
+    const queuedJobs = data.queued[0]?.count ?? 0;
+    const runningJobs = data.running[0]?.count ?? 0;
 
+    const finishedJobs = completedJobs + failedJobs;
     const successRate =
-      totalSubmissions > 0
-        ? Number(((completed / totalSubmissions) * 100).toFixed(1))
+      finishedJobs > 0
+        ? Number(((completedJobs / finishedJobs) * 100).toFixed(2))
         : 0;
 
     const avgExecutionTime =
@@ -73,17 +84,22 @@ export async function GET() {
         : 0;
 
     return NextResponse.json({
-      totalSubmissions,
-      completed,
-      failed,
-      successRate,
-      avgExecutionTime,
-      avgMemoryUsed,
-      avgQueueWaitTime,
+      success: true,
+      analytics: {
+        totalJobs,
+        completedJobs,
+        failedJobs,
+        queuedJobs,
+        runningJobs,
+        successRate,
+        avgExecutionTime,
+        avgMemoryUsed,
+        avgQueueWaitTime,
+      },
     });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
-      { error: 'Failed to fetch analytics' },
+      { success: false, error: error.message },
       { status: 500 },
     );
   }
