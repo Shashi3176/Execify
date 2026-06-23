@@ -1,9 +1,20 @@
 import { NextResponse } from 'next/server';
+import workerPool from '@/lib/workerPool';
 
-// Will connect to worker pool
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    poolStatus: { maxConcurrent: 0, currentlyRunning: 0, queueLength: 0, activeJobIds: [], mode: 'fifo' }
-  });
+  try {
+      const status = workerPool.getStatus();
+
+      return NextResponse.json({
+        success: true,
+        PoolStatus: status
+      })
+  } catch (error: any) {
+    return NextResponse.json({
+        success: false,
+        error: error.message 
+      },
+      { status: 500 }
+    )
+  }
 }
