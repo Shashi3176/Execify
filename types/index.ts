@@ -1,7 +1,7 @@
 export interface Job {
   _id: string;
   code: string;
-  language: 'javascript' | 'python';
+  language: 'javascript' | 'python' | 'cpp' | 'java';
   status: 'queued' | 'running' | 'completed' | 'failed';
   output: string;
   error: string;
@@ -14,6 +14,14 @@ export interface Job {
   priority: number;
   queuePosition?: number;
   schedulingMode: 'fifo' | 'priority';
+}
+
+export interface TotalCounts {
+  all: number;
+  queued: number;
+  running: number;
+  completed: number;
+  failed: number;
 }
 
 export interface PoolStatus {

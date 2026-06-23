@@ -5,17 +5,23 @@ import {
   formatRelativeTime,
   formatExecutionTime,
   formatMemory,
-  shortenId,
   getStatusConfig,
   getLanguageConfig,
 } from '@/lib/historyUtils'
+import { Job } from '@/types'
 
-export default function JobDetailModal({ job, onClose, isOpen }) {
+interface JobDetailModalProps {
+  job: Job | null;
+  onClose: () => void;
+  isOpen: boolean;
+}
+
+export default function JobDetailModal({ job, onClose, isOpen }: JobDetailModalProps) {
   const [copied, setCopied] = useState(false)
   const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
     if (isOpen) {
@@ -39,7 +45,7 @@ export default function JobDetailModal({ job, onClose, isOpen }) {
     }, 2000)
   }
 
-  const renderStars = (priority) => {
+  const renderStars = (priority: number) => {
     const safePriority = Math.max(1, Math.min(5, Number(priority) || 1))
     return Array.from({ length: 5 }, (_, i) => (
       <span key={i} className={i < safePriority ? 'text-yellow-400' : 'text-gray-600'}>

@@ -1,6 +1,14 @@
 'use client';
 
-export default function HistoryFilterBar({ activeFilter, onFilterChange, totalCounts }) {
+import { TotalCounts } from '@/types';
+
+interface HistoryFilterBarProps {
+  activeFilter: string;
+  onFilterChange: (filter: string) => void;
+  totalCounts: TotalCounts;
+}
+
+export default function HistoryFilterBar({ activeFilter, onFilterChange, totalCounts }: HistoryFilterBarProps) {
   const filters = [
     { id: 'all', label: 'All' },
     { id: 'queued', label: 'Queued' },
@@ -9,7 +17,7 @@ export default function HistoryFilterBar({ activeFilter, onFilterChange, totalCo
     { id: 'failed', label: 'Failed' },
   ];
 
-  const getActiveStyles = (filterId) => {
+  const getActiveStyles = (filterId: string) => {
     if (activeFilter !== filterId) return '';
     switch (filterId) {
       case 'all':
@@ -27,7 +35,7 @@ export default function HistoryFilterBar({ activeFilter, onFilterChange, totalCo
     }
   };
 
-  const getInactiveStyles = (filterId) => {
+  const getInactiveStyles = (filterId: string) => {
     if (activeFilter === filterId) return '';
     switch (filterId) {
       case 'all':
@@ -37,7 +45,7 @@ export default function HistoryFilterBar({ activeFilter, onFilterChange, totalCo
     }
   };
 
-  const getBadgeStyles = (filterId) => {
+  const getBadgeStyles = (filterId: string) => {
     if (activeFilter === filterId) {
       switch (filterId) {
         case 'all':
@@ -73,13 +81,13 @@ export default function HistoryFilterBar({ activeFilter, onFilterChange, totalCo
             <span
               className={`px-1.5 py-0.5 rounded text-xs ${getBadgeStyles(filter.id)}`}
             >
-              {totalCounts[filter.id]}
+              {totalCounts[filter.id as keyof TotalCounts]}
             </span>
           </button>
         ))}
       </div>
       <span className="text-gray-500 text-sm">
-        Showing {totalCounts[activeFilter]} submissions
+        Showing {totalCounts[activeFilter as keyof TotalCounts]} submissions
       </span>
     </div>
   );

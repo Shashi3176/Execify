@@ -1,9 +1,11 @@
-export function formatRelativeTime(dateString) {
+import { Job } from '@/types';
+
+export function formatRelativeTime(dateString: string | Date | null | undefined): string {
   if (!dateString) return "—"
 
   const date = typeof dateString === "string" ? new Date(dateString) : dateString
   const now = new Date()
-  const diffMs = now - date
+  const diffMs = now.getTime() - date.getTime()
   const diffSec = Math.floor(diffMs / 1000)
   const diffMin = Math.floor(diffSec / 60)
   const diffHrs = Math.floor(diffMin / 60)
@@ -17,7 +19,7 @@ export function formatRelativeTime(dateString) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
-export function formatExecutionTime(ms) {
+export function formatExecutionTime(ms: number | null | undefined): string {
   if (ms == null) return "—"
 
   if (ms < 1) return "< 1ms"
@@ -26,7 +28,7 @@ export function formatExecutionTime(ms) {
   return `${(ms / 1000).toFixed(2)}s`
 }
 
-export function formatMemory(bytes) {
+export function formatMemory(bytes: number | null | undefined): string {
   if (bytes == null) return "—"
 
   if (bytes < 1024) return `${bytes} B`
@@ -35,14 +37,14 @@ export function formatMemory(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function shortenId(id) {
+export function shortenId(id: string | null | undefined): string {
   if (!id) return "—"
 
   return `${id.slice(0, 8)}...`
 }
 
-export function getStatusConfig(status) {
-  const configs = {
+export function getStatusConfig(status: Job['status']): { label: string; color: string; bgColor: string; dotColor: string } {
+  const configs: Record<string, { label: string; color: string; bgColor: string; dotColor: string }> = {
     queued: { label: "Queued", color: "text-blue-400", bgColor: "bg-blue-400/10", dotColor: "bg-blue-400" },
     running: { label: "Running", color: "text-yellow-400", bgColor: "bg-yellow-400/10", dotColor: "bg-yellow-400" },
     completed: { label: "Completed", color: "text-green-400", bgColor: "bg-green-400/10", dotColor: "bg-green-400" },
@@ -52,8 +54,8 @@ export function getStatusConfig(status) {
   return configs[status] || { label: "Unknown", color: "text-gray-400", bgColor: "bg-gray-400/10", dotColor: "bg-gray-400" }
 }
 
-export function getLanguageConfig(language) {
-  const configs = {
+export function getLanguageConfig(language: Job['language']): { label: string; badgeColor: string; icon: string } {
+  const configs: Record<string, { label: string; badgeColor: string; icon: string }> = {
     javascript: { label: "JavaScript", badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30", icon: "⚡" },
     python: { label: "Python", badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30", icon: "🐍" },
     cpp: { label: "C++", badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30", icon: "⚙️" },

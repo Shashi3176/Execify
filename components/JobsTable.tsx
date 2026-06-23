@@ -1,8 +1,16 @@
 "use client"
 
 import { formatRelativeTime, formatExecutionTime, formatMemory, shortenId, getStatusConfig, getLanguageConfig } from '@/lib/historyUtils'
+import { Job } from '@/types'
 
-export default function JobsTable({ jobs, onJobClick, isLoading, emptyFilter }) {
+interface JobsTableProps {
+  jobs: Job[];
+  onJobClick: (job: Job) => void;
+  isLoading: boolean;
+  emptyFilter: string;
+}
+
+export default function JobsTable({ jobs, onJobClick, isLoading, emptyFilter }: JobsTableProps) {
   if (isLoading) {
     return (
       <div className="overflow-x-auto rounded-xl border border-gray-700/50">
