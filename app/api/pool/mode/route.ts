@@ -1,27 +1,36 @@
-import { NextResponse } from 'next/server';
-import workerPool from '@/lib/workerPool';
+import workerPool from "@/lib/workerPool"
 
-export async function POST(request: Request) {
-  try {
-    const {mode} = await request.json();
+type QueueMode = 'fifo' | 'priority'
 
-    if (mode !== 'fifo' && mode !== 'priority') {
-      return NextResponse.json(
-        { success: false, error: 'Mode must be "fifo" or "priority"' },
-        { status: 400 }
-      )
+// Mode should ideally live in the worker pool singleton, which has setMode but not getQueueMode
+let currentMode: QueueMode = 'fifo'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET() {
+    try {
+        return Response.json({ mode: currentMode })
+    } catch {
+        return Response.json({ error: 'Failed to get mode' }, { status: 500 })
     }
-    
-    workerPool.setMode(mode)
-    
-    return NextResponse.json({
-      success: true,
-      message: `Scheduling mode set to ${mode}`
-    })
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
-  }
+}
+
+export async function PUT(request: Request) {
+    try {
+        const body = await request.json()
+        const mode = body.mode
+
+        if (mode !== 'fifo' && mode !== 'priority') {
+            return Response.json(
+                { error: "Mode must be 'fifo' or 'priority'" },
+                { status: 400 }
+            )
+        }
+
+        currentMode = mode
+        workerPool.setMode(mode)
+        return Response.json({ success: true, mode })
+    } catch {
+        return Response.json({ error: 'Failed to update mode' }, { status: 500 })
+    }
 }
