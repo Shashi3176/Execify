@@ -23,26 +23,26 @@ const zeroStats: ComparisonStats = {
   avgExecutionTime: 0,
 };
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     await connectDB();
 
-    const result = await JobModel.aggregate([
-      { $match: { status: 'completed' } },
-      {
-        $group: {
-          _id: '$queueMode',
-          totalJobs: { $sum: 1 },
-          avgWaitTime: {
-            $avg: { $subtract: ['$startedAt', '$queuedAt'] },
-          },
-          avgTurnaroundTime: {
-            $avg: { $subtract: ['$completedAt', '$queuedAt'] },
-          },
-          avgExecutionTime: { $avg: '$executionTime' },
+  const result = await JobModel.aggregate([
+    { $match: { status: 'completed' } },
+    {
+      $group: {
+        _id: '$schedulingMode',
+        totalJobs: { $sum: 1 },
+        avgWaitTime: {
+          $avg: { $subtract: ['$startedAt', '$queuedAt'] },
         },
+        avgTurnaroundTime: {
+          $avg: { $subtract: ['$completedAt', '$queuedAt'] },
+        },
+        avgExecutionTime: { $avg: '$executionTime' },
       },
-    ]);
+    },
+  ]);
 
     const response: ComparisonResponse = {
       fifo: { ...zeroStats },
@@ -68,6 +68,20 @@ export async function GET(request: NextRequest) {
               : 0,
         };
       }
+    }
+
+    return NextResponse.json(response);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      {
+        fifo: { ...zeroStats },
+        priority: { ...zeroStats },
+      },
+      { status: 500 },
+    );
+  }
+}
     }
 
     return NextResponse.json(response);

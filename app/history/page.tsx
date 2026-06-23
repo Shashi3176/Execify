@@ -5,6 +5,8 @@ import JobsTable from '@/components/JobsTable'
 import HistoryFilterBar from '@/components/HistoryFilterBar'
 import JobDetailModal from '@/components/JobDetailModal'
 import { Job, TotalCounts } from '@/types'
+import { JobTableSkeleton } from '@/components/Skeleton'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 type ApiResponse = {
   jobs: Job[];
@@ -27,6 +29,7 @@ export default function HistoryPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [, forceUpdate] = useState(0)
+  const [fetchError, setFetchError] = useState<string | null>(null)
 
   const fetchJobs = useCallback(async (filterOverride?: string, pageOverride?: number, append?: boolean) => {
     const effectiveFilter = filterOverride ?? activeFilter
@@ -38,13 +41,13 @@ export default function HistoryPage() {
       setIsLoading(true)
     }
 
-    try {
-      const params = new URLSearchParams({ page: String(effectivePage), limit: '20' })
-      if (effectiveFilter !== 'all') {
-        params.set('status', effectiveFilter)
-      }
+     try {
+       const params = new URLSearchParams({ page: String(effectivePage), limit: '20' })
+       if (effectiveFilter !== 'all') {
+         params.set('status', effectiveFilter)
+       }
 
-const res = await fetch(`/api/jobs?${params}`)
+       const res = await fetch(`/api/jobs?${params}`)
        const data: ApiResponse = await res.json()
 
        if (append) {
@@ -55,14 +58,14 @@ const res = await fetch(`/api/jobs?${params}`)
 
        setTotal(data.total)
        setTotalPages(data.totalPages)
-      setLastRefresh(new Date())
-      setError(null)
-    } catch {
-      setError('Failed to load submissions. Retrying...')
-    } finally {
-      setIsLoading(false)
-      setIsLoadingMore(false)
-    }
+       setLastRefresh(new Date())
+       setError(null)
+       setFetchError(null)
+     } catch (error: unknown) {
+       const message = error instanceof Error ? error.message : 'Failed to load submissions'
+       setError('Failed to load submissions. Retrying...')
+       setFetchError(message)
+     }
   }, [activeFilter, page])
 
   const fetchCounts = useCallback(async () => {
@@ -150,7 +153,8 @@ const res = await fetch(`/api/jobs?${params}`)
       : `Updated ${secondsAgo}s ago`
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="pt-8 pb-4 flex items-start justify-between">
           <div>
@@ -186,8 +190,22 @@ const res = await fetch(`/api/jobs?${params}`)
 
         <HistoryFilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} totalCounts={totalCounts} />
 
+        {fetchError && (
+          <div className="bg-red-900/20 border border-red-700/50 rounded-xl p-6 text-center mb-4">
+            <p className="text-red-400 mb-3">{fetchError}</p>
+            <button
+              onClick={() => fetchJobs()}
+              className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 px-4 py-2 rounded-lg text-sm transition-all"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         <div className="py-6">
-          <JobsTable jobs={jobs} onJobClick={handleJobClick} isLoading={isLoading} emptyFilter={activeFilter} />
+          <ErrorBoundary>
+            <JobsTable jobs={jobs} onJobClick={handleJobClick} isLoading={isLoading} emptyFilter={activeFilter} />
+          </ErrorBoundary>
         </div>
 
         {page < totalPages && (
@@ -219,6 +237,7 @@ const res = await fetch(`/api/jobs?${params}`)
       </div>
 
       <JobDetailModal job={selectedJob} onClose={handleCloseModal} isOpen={isModalOpen} />
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

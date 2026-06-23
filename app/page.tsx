@@ -1,8 +1,15 @@
 import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary'
+
+export const metadata = {
+  title: 'Execify | Code Execution Platform',
+  description: 'Browser-based code execution with job queuing and real-time streaming',
+}
 
 export default function Home() {
   return (
-    <div className="space-y-16">
+    <ErrorBoundary>
+      <div className="space-y-16">
       <section className="text-center py-20">
         <h1 className="text-6xl font-bold text-white mb-6">⚡ Execify</h1>
         <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
@@ -45,6 +52,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

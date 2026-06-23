@@ -16,6 +16,12 @@ interface ExecutionResult{
     timedOut: boolean
 }
 
+interface JobData {
+  _id: { toString(): string };
+  code: string;
+  language: string;
+}
+
 export async function executeJob(jobId: string): Promise<void> {
     await connectDB();
 
@@ -29,7 +35,7 @@ export async function executeJob(jobId: string): Promise<void> {
     await job.save();
 
     try {
-        const result = await runProcess(job);
+        const result = await runProcess({ _id: job._id, code: job.code, language: job.language });
 
         job.output = result.output;
         job.error = result.error;
@@ -39,9 +45,9 @@ export async function executeJob(jobId: string): Promise<void> {
         job.completedAt = new Date();
 
         await job.save();
-    } catch (error: any) {
+    } catch (error: unknown) {
         job.status = 'failed';
-        job.error = error.message;
+        job.error = error instanceof Error ? error.message : 'Unknown error';
         job.completedAt = new Date();
         
         await job.save();
@@ -62,23 +68,18 @@ function writeTempFile(jobId: string,code: string,language: string): string{
 function cleanupTempFile(filePath: string): void{
     try {
         fs.unlinkSync(filePath);        
-    } catch (error) {
+    } catch {
         
     }
 }
 
-async function runProcess(job: any): Promise<ExecutionResult>{
+async function runProcess(job: JobData): Promise<ExecutionResult>{
     const filePath = writeTempFile(job._id.toString(), job.code, job.language);
 
     const command = job.language === 'javascript' ? 'node' : 'python3';
     const args = [filePath];
 
     const child: ChildProcess = spawn(command, args);
-
-    if(child.pid){
-        job.pid = child.pid;
-        await job.save().catch(() => {});
-    }
 
     let outputData = '';
     let errorData = '';
@@ -115,8 +116,8 @@ async function runProcess(job: any): Promise<ExecutionResult>{
                 const stats = await pidusage(child.pid);
                 memoryUsed = stats.memory;
             }
-            catch(error){
-
+            catch {
+                
             }
         }
     }, 500);

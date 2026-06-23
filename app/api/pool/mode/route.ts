@@ -7,17 +7,18 @@ let currentMode: QueueMode = 'fifo'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(): Promise<Response> {
     try {
         return Response.json({ mode: currentMode })
-    } catch {
-        return Response.json({ error: 'Failed to get mode' }, { status: 500 })
+    } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to get mode';
+    return Response.json({ error: message }, { status: 500 })
     }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: Request): Promise<Response> {
     try {
-        const body = await request.json()
+        const body: { mode: string } = await request.json()
         const mode = body.mode
 
         if (mode !== 'fifo' && mode !== 'priority') {
@@ -30,7 +31,8 @@ export async function PUT(request: Request) {
         currentMode = mode
         workerPool.setMode(mode)
         return Response.json({ success: true, mode })
-    } catch {
-        return Response.json({ error: 'Failed to update mode' }, { status: 500 })
+    } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to update mode';
+    return Response.json({ error: message }, { status: 500 })
     }
 }

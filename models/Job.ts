@@ -1,6 +1,6 @@
 import mongoose, { Schema, model, models, Document } from 'mongoose';
 
-interface JobDocument extends Document {
+export interface JobDocument extends Document {
   code: string;
   language: 'javascript' | 'python';
   status: 'queued' | 'running' | 'completed' | 'failed';
@@ -15,7 +15,6 @@ interface JobDocument extends Document {
   priority: number;
   queuePosition?: number;
   schedulingMode: 'fifo' | 'priority';
-  queueMode: { type: String, enum: ['fifo', 'priority'], default: 'fifo', index: true };
 }
 
 const jobSchema = new Schema<JobDocument>(

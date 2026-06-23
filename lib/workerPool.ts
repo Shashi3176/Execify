@@ -68,8 +68,8 @@ class WorkerPool{
             })
             
             await executeJob(jobId)
-        } catch (error) {
-            console.error(`Error executing job ${jobId}: `, error)
+        } catch (error: unknown) {
+            console.error(`Error executing job ${jobId}: `, error instanceof Error ? error.message : 'Unknown error')
         }
         finally{
             this.activeJobs.delete(jobId)
@@ -134,8 +134,8 @@ class WorkerPool{
                 await JobModel.findByIdAndUpdate(item.jobId, {
                     queuePosition: i + 1
                 })
-            } catch (error) {
-                console.error(`Failed to update queue position for job ${item.jobId}`)
+            } catch (error: unknown) {
+                console.error(`Failed to update queue position for job ${item.jobId}`, error instanceof Error ? error.message : 'Unknown error')
             }
         }
     }
@@ -184,8 +184,8 @@ class WorkerPool{
                     error: 'Queue cleared by Administrator',
                     completedAt: new Date()
                 })
-            } catch (error) {
-                console.error(`Failed to clear job ${item.jobId}`)
+            } catch (error: unknown) {
+                console.error(`Failed to clear job ${item.jobId}`, error instanceof Error ? error.message : 'Unknown error')
             }
         }
         this.queue = []    
@@ -194,17 +194,15 @@ class WorkerPool{
     async recoverOrphanedJobs(): Promise<void> {
         await connectDB()
 
-        const orphanedJobs = await JobModel.find({status: 'running'})
+        const orphanedJobs = await JobModel.find({status: 'running'}).lean();
 
         for(const job of orphanedJobs){
-            job.status = 'failed'
-            job.error = 'Server restarted during execution'
-            job.completedAt = new Date()
-
-            await job.save()
+            await JobModel.findByIdAndUpdate((job as unknown as { _id: unknown })._id.toString(), {
+                status: 'failed',
+                error: 'Server restarted during execution',
+                completedAt: new Date()
+            })
         }
-
-        console.log(`Recovered ${orphanedJobs.length} orphaned jobs`)
     }
 };
 
