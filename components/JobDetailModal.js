@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { NextResponse } from 'next/server'
 import {
   formatRelativeTime,
   formatExecutionTime,
@@ -13,6 +12,7 @@ import {
 
 export default function JobDetailModal({ job, onClose, isOpen }) {
   const [copied, setCopied] = useState(false)
+  const [showToast, setShowToast] = useState(false)
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -32,7 +32,11 @@ export default function JobDetailModal({ job, onClose, isOpen }) {
     if (!job?.code) return
     await navigator.clipboard.writeText(job.code)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setShowToast(true)
+    setTimeout(() => {
+      setCopied(false)
+      setShowToast(false)
+    }, 2000)
   }
 
   const renderStars = (priority) => {
@@ -54,6 +58,11 @@ export default function JobDetailModal({ job, onClose, isOpen }) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
       onClick={onClose}
     >
+      {showToast && (
+        <div className="fixed bottom-4 right-4 z-[60] bg-gray-800 text-green-400 border border-green-500/30 px-4 py-2 rounded-lg text-sm animate-pulse">
+          Code copied to clipboard!
+        </div>
+      )}
       <div
         className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl border border-gray-700 bg-gray-900 p-6"
         onClick={(e) => e.stopPropagation()}

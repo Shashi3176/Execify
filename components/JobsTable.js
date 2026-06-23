@@ -2,28 +2,34 @@
 
 import { formatRelativeTime, formatExecutionTime, formatMemory, shortenId, getStatusConfig, getLanguageConfig } from '@/lib/historyUtils'
 
-export default function JobsTable({ jobs, onJobClick, isLoading }) {
+export default function JobsTable({ jobs, onJobClick, isLoading, emptyFilter }) {
   if (isLoading) {
     return (
       <div className="overflow-x-auto rounded-xl border border-gray-700/50">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-800/50">
-              {["Job ID", "Language", "Status", "Priority", "Submitted", "Exec Time", "Memory", ""].map((header) => (
-                <th key={header} className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">
-                  {header}
-                </th>
-              ))}
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Job ID</th>
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Language</th>
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Status</th>
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left hidden md:table-cell">Priority</th>
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Submitted</th>
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left hidden md:table-cell">Exec Time</th>
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left hidden md:table-cell">Memory</th>
+              <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left"></th>
             </tr>
           </thead>
           <tbody className="bg-gray-900">
             {Array.from({ length: 5 }).map((_, rowIndex) => (
               <tr key={rowIndex} className="border-b border-gray-800 last:border-0">
-                {Array.from({ length: 8 }).map((_, cellIndex) => (
-                  <td key={cellIndex} className="px-4 py-3">
-                    <div className="bg-gray-700 rounded animate-pulse h-4 w-full" />
-                  </td>
-                ))}
+                <td className="px-4 py-3"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
+                <td className="px-4 py-3"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
+                <td className="px-4 py-3"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
+                <td className="px-4 py-3 hidden md:table-cell"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
+                <td className="px-4 py-3"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
+                <td className="px-4 py-3 hidden md:table-cell"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
+                <td className="px-4 py-3 hidden md:table-cell"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
+                <td className="px-4 py-3"><div className="bg-gray-700 rounded animate-pulse h-4 w-full" /></td>
               </tr>
             ))}
           </tbody>
@@ -33,11 +39,17 @@ export default function JobsTable({ jobs, onJobClick, isLoading }) {
   }
 
   if (!jobs || jobs.length === 0) {
+    const filterLabel = emptyFilter && emptyFilter !== 'all' ? emptyFilter : ''
+    const title = filterLabel ? `No ${filterLabel} submissions found` : 'No submissions yet'
+    const subtitle = filterLabel
+      ? `No ${filterLabel} submissions match your current filter`
+      : 'Run some code to see your submission history here'
+
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <div className="text-6xl mb-4">📭</div>
-        <h3 className="text-xl text-gray-400 mb-2">No submissions yet</h3>
-        <p className="text-gray-600">Run some code to see your submission history here</p>
+        <h3 className="text-xl text-gray-400 mb-2">{title}</h3>
+        <p className="text-gray-600">{subtitle}</p>
       </div>
     )
   }
@@ -50,10 +62,10 @@ export default function JobsTable({ jobs, onJobClick, isLoading }) {
             <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Job ID</th>
             <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Language</th>
             <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Status</th>
-            <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Priority</th>
+            <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left hidden md:table-cell">Priority</th>
             <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Submitted</th>
-            <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Exec Time</th>
-            <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left">Memory</th>
+            <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left hidden md:table-cell">Exec Time</th>
+            <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left hidden md:table-cell">Memory</th>
             <th className="text-xs text-gray-500 uppercase tracking-wider px-4 py-3 text-left"></th>
           </tr>
         </thead>
@@ -92,7 +104,7 @@ export default function JobsTable({ jobs, onJobClick, isLoading }) {
                     <span>{statusConfig.label}</span>
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 hidden md:table-cell">
                   <div className="text-sm">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <span key={i} className={i < (job.priority || 0) ? "text-yellow-400" : "text-gray-600"}>
@@ -104,10 +116,10 @@ export default function JobsTable({ jobs, onJobClick, isLoading }) {
                 <td className="px-4 py-3">
                   <span className="text-sm text-gray-300">{formatRelativeTime(job.queuedAt)}</span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 hidden md:table-cell">
                   <span className="font-mono text-sm text-gray-300">{formatExecutionTime(job.executionTime)}</span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 hidden md:table-cell">
                   <span className="font-mono text-sm text-gray-300">{formatMemory(job.memoryUsed)}</span>
                 </td>
                 <td className="px-4 py-3">
