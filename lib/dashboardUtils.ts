@@ -35,7 +35,7 @@ export function formatWaitTime(ms: number | null | undefined): string {
 
 export function formatSuccessRate(rate: number | null | undefined): { text: string; colorClass: string } {
   const rateValue = rate ?? 0;
-  const text = `${(rateValue * 100).toFixed(1)}%`;
+  const text = `${(rateValue).toFixed(1)}%`;
 
   let colorClass = "";
   if (rateValue >= 0.9) {

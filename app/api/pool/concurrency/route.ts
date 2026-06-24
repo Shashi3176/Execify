@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import workerPool from '@/lib/workerPool';
+import { SettingsModel } from '@/models/Settings';
+import { connectDB } from '@/lib/db';
 
 interface ConcurrencyBody {
   maxConcurrent: number;
@@ -18,12 +20,19 @@ export async function PUT(request: Request): Promise<NextResponse> {
         { status: 400 }
         )}
 
-        await workerPool.updateConcurrency(maxConcurrent)
+      await connectDB();
+      await workerPool.updateConcurrency(maxConcurrent)
+
+      await SettingsModel.findOneAndUpdate(
+        { _id: 'global' },
+        { maxConcurrent },
+        { upsert: true, new: true }
+      );
     
-        return NextResponse.json({
-          success: true,
-          message: `Concurrency updated to ${maxConcurrent}`
-        })
+      return NextResponse.json({
+        success: true,
+        message: `Concurrency updated to ${maxConcurrent}`
+      })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(

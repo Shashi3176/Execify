@@ -189,7 +189,3 @@ Visit http://localhost:3000
 - SSE connections close automatically on job completion or failure
 - Memory tracking uses process.memoryUsage() from the child process
 
----
-
-## License
-MIT

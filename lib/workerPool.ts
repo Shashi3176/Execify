@@ -1,6 +1,7 @@
 import { executeJob } from "./executor";
 import { JobModel } from "@/models/Job";
 import { connectDB } from "./db";
+import { SettingsModel } from "@/models/Settings";
 
 interface JobQueueItem{
     jobId: string
@@ -191,17 +192,26 @@ class WorkerPool{
         this.queue = []    
     }
 
-    async recoverOrphanedJobs(): Promise<void> {
+    async     recoverOrphanedJobs(): Promise<void> {
         await connectDB()
 
         const orphanedJobs = await JobModel.find({status: 'running'}).lean();
 
         for(const job of orphanedJobs){
-            await JobModel.findByIdAndUpdate((job as unknown as { _id: unknown })._id.toString(), {
+            await JobModel.findByIdAndUpdate(job._id.toString(), {
                 status: 'failed',
                 error: 'Server restarted during execution',
                 completedAt: new Date()
             })
+        }
+    }
+
+    async syncFromSettings(): Promise<void> {
+        await connectDB();
+        const settings = await SettingsModel.findById('global').lean();
+        if (settings) {
+            this.maxConcurrent = settings.maxConcurrent;
+            this.mode = settings.mode as 'fifo' | 'priority';
         }
     }
 };

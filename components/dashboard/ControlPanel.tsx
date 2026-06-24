@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
 interface ControlPanelProps {
   currentMax: number;
   currentMode: 'fifo' | 'priority';
-  onConcurrencyApplied: () => void;
-  onModeChanged: () => void;
+  onConcurrencyApplied: (maxConcurrent: number) => void;
+  onModeChanged: (mode: string) => void;
 }
 
 export default function ControlPanel({
@@ -47,7 +47,7 @@ export default function ControlPanel({
 
       setConcurrencySuccess(true);
       setTimeout(() => setConcurrencySuccess(false), 3000);
-      onConcurrencyApplied();
+      onConcurrencyApplied(sliderValue);
     } catch (err) {
       setConcurrencyError(err instanceof Error ? err.message : 'Failed to update concurrency');
     } finally {
@@ -75,7 +75,7 @@ export default function ControlPanel({
 
       setModeSuccess(true);
       setTimeout(() => setModeSuccess(false), 3000);
-      onModeChanged();
+      onModeChanged(mode);
     } catch (err) {
       setModeError(err instanceof Error ? err.message : 'Failed to update mode');
     } finally {

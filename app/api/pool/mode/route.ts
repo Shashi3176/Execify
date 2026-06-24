@@ -1,15 +1,17 @@
 import workerPool from "@/lib/workerPool"
+import { SettingsModel } from '@/models/Settings';
+import { connectDB } from '@/lib/db';
 
 type QueueMode = 'fifo' | 'priority'
-
-// Mode should ideally live in the worker pool singleton, which has setMode but not getQueueMode
-let currentMode: QueueMode = 'fifo'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(): Promise<Response> {
     try {
-        return Response.json({ mode: currentMode })
+        await connectDB();
+        const settings = await SettingsModel.findById('global').lean();
+        const mode = (settings?.mode as QueueMode) ?? 'fifo';
+        return Response.json({ mode })
     } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to get mode';
     return Response.json({ error: message }, { status: 500 })
@@ -18,6 +20,7 @@ export async function GET(): Promise<Response> {
 
 export async function PUT(request: Request): Promise<Response> {
     try {
+        await connectDB();
         const body: { mode: string } = await request.json()
         const mode = body.mode
 
@@ -28,8 +31,12 @@ export async function PUT(request: Request): Promise<Response> {
             )
         }
 
-        currentMode = mode
         workerPool.setMode(mode)
+        await SettingsModel.findOneAndUpdate(
+          { _id: 'global' },
+          { mode },
+          { upsert: true, new: true }
+        );
         return Response.json({ success: true, mode })
     } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to update mode';

@@ -86,11 +86,11 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json({
       success: true,
       analytics: {
-        totalJobs,
-        completedJobs,
-        failedJobs,
-        queuedJobs,
-        runningJobs,
+        totalSubmissions: totalJobs,
+        completed: completedJobs,
+        failed: failedJobs,
+        queued: queuedJobs,
+        running: runningJobs,
         successRate,
         avgExecutionTime,
         avgMemoryUsed,

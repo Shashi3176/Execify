@@ -5,6 +5,19 @@ import { useToast } from '@/hooks/useToast'
 import { DashboardGridSkeleton, PoolStatusSkeleton } from '@/components/Skeleton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import SchedulingComparison from "@/components/SchedulingComparison";
+import ActivityFeed from "@/components/dashboard/ActivityFeed";
+import AnalyticsCards from "@/components/dashboard/AnalyticsCards";
+import ControlPanel from "@/components/dashboard/ControlPanel";
+import PoolStatusCard from "@/components/dashboard/PoolStatusCard";
+
+interface Job {
+  _id: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  queuedAt?: string | Date;
+  createdAt?: string | Date;
+  executionTime?: number;
+  language?: string;
+}
 
 interface ComparisonStats {
   totalJobs: number;
@@ -13,7 +26,17 @@ interface ComparisonStats {
   avgExecutionTime: number;
 }
 
-function timeAgo(iso: string | undefined) {
+interface Analytics {
+  totalSubmissions: number;
+  completed: number;
+  failed: number;
+  successRate: number;
+  avgExecutionTime: number;
+  avgMemoryUsed: number;
+  avgQueueWaitTime: number;
+}
+
+function timeAgo(iso: string | null) {
   if (!iso) return "just now";
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (diff < 5) return "just now";
@@ -30,8 +53,8 @@ export default function DashboardPage() {
     activeJobIds: string[];
   } | null>(null);
   const [queueMode, setQueueMode] = useState<string | null>(null);
-  const [analytics, setAnalytics] = useState<unknown>(null);
-  const [recentJobs, setRecentJobs] = useState<unknown[]>([]);
+const [analytics, setAnalytics] = useState<Analytics | null>(null);
+   const [recentJobs, setRecentJobs] = useState<Job[]>([]);
   const [comparisonData, setComparisonData] = useState<{
     fifo: ComparisonStats;
     priority: ComparisonStats;
@@ -52,13 +75,13 @@ export default function DashboardPage() {
   const refreshAllRef2 = useRef<(() => void) | null>(null);
   const { showToast } = useToast()
 
-  const fetchPoolStatus = useCallback(async () => {
+   const fetchPoolStatus = useCallback(async () => {
     try {
       setPoolError(null);
       const res = await fetch("/api/pool/status");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setPoolStatus(data);
+      setPoolStatus(data.PoolStatus ?? data);
     } catch (error: unknown) {
       setPoolError(error instanceof Error ? error.message ?? "Failed to load pool status" : "Failed to load pool status");
     }
@@ -81,7 +104,7 @@ export default function DashboardPage() {
       const res = await fetch("/api/analytics");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setAnalytics(data);
+      setAnalytics(data.analytics ?? data);
     } catch (error: unknown) {
       setAnalyticsError(error instanceof Error ? error.message ?? "Failed to load analytics" : "Failed to load analytics");
     }
@@ -94,12 +117,12 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      let jobs: unknown[] = Array.isArray(data) ? data : data?.jobs ?? [];
-      jobs.sort(
-        (a, b) =>
-          new Date((b as Record<string, unknown>).queuedAt ?? (b as Record<string, unknown>).createdAt ?? 0).getTime() -
-          new Date((a as Record<string, unknown>).queuedAt ?? (a as Record<string, unknown>).createdAt ?? 0).getTime()
-      );
+let jobs: Job[] = Array.isArray(data) ? data : data?.jobs ?? [];
+       jobs.sort(
+         (a, b) =>
+           new Date(b.queuedAt ?? b.createdAt ?? 0).getTime() -
+           new Date(a.queuedAt ?? a.createdAt ?? 0).getTime()
+       );
       setRecentJobs(jobs.slice(0, 10));
     } catch (error: unknown) {
       setJobsError(error instanceof Error ? error.message ?? "Failed to load jobs" : "Failed to load jobs");
@@ -121,10 +144,10 @@ export default function DashboardPage() {
 
   const refreshAll = useCallback(async () => {
     setIsRefreshing(true);
-    await Promise.all([fetchPoolStatus(), fetchAnalytics(), fetchJobs(), fetchComparison()]);
+    await Promise.all([fetchPoolStatus(), fetchQueueMode(), fetchAnalytics(), fetchJobs(), fetchComparison()]);
     setLastRefresh(new Date().toISOString());
     setIsRefreshing(false);
-  }, [fetchPoolStatus, fetchAnalytics, fetchJobs, fetchComparison]);
+  }, [fetchPoolStatus, fetchAnalytics, fetchJobs, fetchComparison, fetchQueueMode]);
 
   refreshAllRef.current = refreshAll;
   refreshAllRef2.current = refreshAll;
@@ -156,12 +179,12 @@ export default function DashboardPage() {
   );
 
   useEffect(() => {
-    refreshAllRef.current();
+    refreshAllRef.current?.();
     const full = setInterval(
       () => refreshAllRef.current?.(),
-      5_000
+      15_000
     );
-    const pool = setInterval(fetchPoolStatus, 3_000);
+    const pool = setInterval(fetchPoolStatus, 8_000);
     return () => {
       clearInterval(full);
       clearInterval(pool);
@@ -226,19 +249,18 @@ export default function DashboardPage() {
                 <PoolStatusSkeleton />
               ) : (
                 <PoolStatusCard
-                  status={poolStatus}
+                  poolStatus={poolStatus}
                   isLoading={isLoadingPool}
+                  lastRefresh={lastRefresh ? new Date(lastRefresh) : null}
                 />
               )}
             </div>
             <div className="lg:col-span-7">
               <ControlPanel
-                maxConcurrent={poolStatus?.maxConcurrent ?? 1}
-                currentlyRunning={poolStatus?.currentlyRunning ?? 0}
-                queueMode={queueMode}
-                onConcurrencyApply={handleConcurrencyApply}
-                onModeChange={handleModeChange}
-                isLoading={isLoadingPool}
+                currentMax={poolStatus?.maxConcurrent ?? 1}
+                currentMode={queueMode as 'fifo' | 'priority' ?? 'fifo'}
+                onConcurrencyApplied={handleConcurrencyApply}
+                onModeChanged={handleModeChange}
               />
             </div>
           </div>
@@ -258,6 +280,7 @@ export default function DashboardPage() {
             jobs={recentJobs}
             isLoading={isLoadingJobs}
           />
+        </div>
         </div>
       </div>
     </ErrorBoundary>

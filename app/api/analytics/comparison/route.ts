@@ -80,18 +80,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
       { status: 500 },
     );
-  }
-}
-    }
-
-    return NextResponse.json(response);
-  } catch (error) {
-    return NextResponse.json(
-      {
-        fifo: { ...zeroStats },
-        priority: { ...zeroStats },
-      },
-      { status: 500 },
-    );
-  }
+  } 
 }

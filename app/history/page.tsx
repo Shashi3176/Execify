@@ -28,7 +28,6 @@ export default function HistoryPage() {
   const [totalCounts, setTotalCounts] = useState<TotalCounts>({ all: 0, queued: 0, running: 0, completed: 0, failed: 0 })
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [, forceUpdate] = useState(0)
   const [fetchError, setFetchError] = useState<string | null>(null)
 
   const fetchJobs = useCallback(async (filterOverride?: string, pageOverride?: number, append?: boolean) => {
@@ -56,16 +55,20 @@ export default function HistoryPage() {
          setJobs(data.jobs)
        }
 
-       setTotal(data.total)
-       setTotalPages(data.totalPages)
-       setLastRefresh(new Date())
-       setError(null)
-       setFetchError(null)
-     } catch (error: unknown) {
-       const message = error instanceof Error ? error.message : 'Failed to load submissions'
-       setError('Failed to load submissions. Retrying...')
-       setFetchError(message)
-     }
+        setTotal(data.total)
+        setTotalPages(data.totalPages)
+        setLastRefresh(new Date())
+        setError(null)
+        setFetchError(null)
+        if (!append) setIsLoading(false)
+        if (append) setIsLoadingMore(false)
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to load submissions'
+        setError('Failed to load submissions. Retrying...')
+        setFetchError(message)
+        if (!append) setIsLoading(false)
+        if (append) setIsLoadingMore(false)
+      }
   }, [activeFilter, page])
 
   const fetchCounts = useCallback(async () => {
@@ -97,18 +100,10 @@ export default function HistoryPage() {
     const interval = setInterval(() => {
       fetchJobs()
       fetchCounts()
-    }, 5000)
+    }, 15000)
 
     return () => clearInterval(interval)
   }, [fetchJobs, fetchCounts])
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      forceUpdate((n) => n + 1)
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
 
   useEffect(() => {
     setPage(1)

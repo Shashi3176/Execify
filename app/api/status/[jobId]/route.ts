@@ -11,8 +11,8 @@ interface StatusUpdate {
   executionTime?: number;
   memoryUsed?: number;
   queuePosition?: number;
-  startedAt?: string;
-  completedAt?: string;
+  startedAt?: Date;
+  completedAt?: Date;
   priority?: number;
   language?: string;
 }
