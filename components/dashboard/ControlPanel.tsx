@@ -134,7 +134,7 @@ export default function ControlPanel({
         )}
 
         <p className="mt-4 text-xs text-gray-500 text-center">
-          Reducing concurrency won't kill running jobs, it just prevents new ones from starting until running count drops below the new limit
+          Reducing concurrency won&apos;t kill running jobs, it just prevents new ones from starting until running count drops below the new limit
         </p>
       </div>
 

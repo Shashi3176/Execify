@@ -5,7 +5,6 @@ import JobsTable from '@/components/JobsTable'
 import HistoryFilterBar from '@/components/HistoryFilterBar'
 import JobDetailModal from '@/components/JobDetailModal'
 import { Job, TotalCounts } from '@/types'
-import { JobTableSkeleton } from '@/components/Skeleton'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 type ApiResponse = {

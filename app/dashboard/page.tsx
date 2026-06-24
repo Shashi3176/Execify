@@ -60,10 +60,10 @@ const [analytics, setAnalytics] = useState<Analytics | null>(null);
     priority: ComparisonStats;
   } | null>(null);
 
-  const [isLoadingPool, setIsLoadingPool] = useState(false);
-  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
-  const [isLoadingJobs, setIsLoadingJobs] = useState(false);
-  const [isLoadingComparison, setIsLoadingComparison] = useState(true);
+  const [isLoadingPool, setIsLoadingPool] = useState(false)
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false)
+  const [isLoadingJobs, setIsLoadingJobs] = useState(false)
+  const [isLoadingComparison, setIsLoadingComparison] = useState(true)
   const [poolError, setPoolError] = useState<string | null>(null);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   const [jobsError, setJobsError] = useState<string | null>(null);
@@ -75,15 +75,18 @@ const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const refreshAllRef2 = useRef<(() => void) | null>(null);
   const { showToast } = useToast()
 
-   const fetchPoolStatus = useCallback(async () => {
-    try {
+    const fetchPoolStatus = useCallback(async () => {
+     try {
       setPoolError(null);
+      setIsLoadingPool(true);
       const res = await fetch("/api/pool/status");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setPoolStatus(data.PoolStatus ?? data);
     } catch (error: unknown) {
       setPoolError(error instanceof Error ? error.message ?? "Failed to load pool status" : "Failed to load pool status");
+    } finally {
+      setIsLoadingPool(false);
     }
   }, []);
 
@@ -101,23 +104,27 @@ const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const fetchAnalytics = useCallback(async () => {
     try {
       setAnalyticsError(null);
+      setIsLoadingAnalytics(true);
       const res = await fetch("/api/analytics");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setAnalytics(data.analytics ?? data);
     } catch (error: unknown) {
       setAnalyticsError(error instanceof Error ? error.message ?? "Failed to load analytics" : "Failed to load analytics");
+    } finally {
+      setIsLoadingAnalytics(false);
     }
   }, []);
 
   const fetchJobs = useCallback(async () => {
     try {
       setJobsError(null);
+      setIsLoadingJobs(true);
       const res = await fetch("/api/jobs");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-let jobs: Job[] = Array.isArray(data) ? data : data?.jobs ?? [];
+  const jobs: Job[] = Array.isArray(data) ? data : data?.jobs ?? [];
        jobs.sort(
          (a, b) =>
            new Date(b.queuedAt ?? b.createdAt ?? 0).getTime() -
@@ -126,6 +133,8 @@ let jobs: Job[] = Array.isArray(data) ? data : data?.jobs ?? [];
       setRecentJobs(jobs.slice(0, 10));
     } catch (error: unknown) {
       setJobsError(error instanceof Error ? error.message ?? "Failed to load jobs" : "Failed to load jobs");
+    } finally {
+      setIsLoadingJobs(false);
     }
   }, []);
 
@@ -162,7 +171,7 @@ let jobs: Job[] = Array.isArray(data) ? data : data?.jobs ?? [];
       await fetchPoolStatus();
       showToast('Max concurrency updated', 'info')
     },
-    [fetchPoolStatus]
+    [fetchPoolStatus, showToast]
   );
 
   const handleModeChange = useCallback(
@@ -175,7 +184,7 @@ let jobs: Job[] = Array.isArray(data) ? data : data?.jobs ?? [];
       await fetchQueueMode();
       showToast('Queue mode updated', 'info')
     },
-    [fetchQueueMode]
+    [fetchQueueMode, showToast]
   );
 
   useEffect(() => {

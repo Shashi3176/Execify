@@ -33,9 +33,7 @@ function Skeleton({ className = '', variant = 'default', lines = 1, animate = tr
   return <div className={`${baseClasses} ${animatedClass} ${className}`} />
 }
 
-interface SkeletonShimmerProps extends SkeletonProps {}
-
-function SkeletonShimmer({ className = '', variant = 'default', lines = 1 }: SkeletonShimmerProps) {
+function SkeletonShimmer({ className = '', variant = 'default', lines = 1 }: SkeletonProps) {
   const shimmerStyle: React.CSSProperties = {
     background: 'linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%)',
     backgroundSize: '200% 100%',

@@ -51,7 +51,7 @@ export default function ActivityFeed({ jobs, isLoading }: ActivityFeedProps) {
         </div>
       ) : (
         <div className="space-y-1">
-          {recentJobs.map((job, index) => {
+          {recentJobs.map((job) => {
             const status = getStatusConfig(job.status);
             const relativeTime = formatRelativeTime(job.queuedAt);
 

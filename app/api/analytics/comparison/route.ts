@@ -23,7 +23,8 @@ const zeroStats: ComparisonStats = {
   avgExecutionTime: 0,
 };
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     await connectDB();
 
@@ -71,8 +72,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json(response);
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+  } catch {
     return NextResponse.json(
       {
         fifo: { ...zeroStats },

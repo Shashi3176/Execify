@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import CodeEditor from '@/components/CodeEditor'
 import LanguageSelector from '@/components/LanguageSelector'
 import PrioritySelector from '@/components/PrioritySelector'
@@ -17,7 +17,7 @@ export default function SubmitPage() {
   const [error, setError] = useState<string | null>(null)
   const { showToast } = useToast()
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!code.trim()) {
       setError('Code cannot be empty')
       return
@@ -47,7 +47,7 @@ export default function SubmitPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [code, language, priority, showToast])
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
