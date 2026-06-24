@@ -1,6 +1,6 @@
-import workerPool from "@/lib/workerPool"
-import { SettingsModel } from '@/models/Settings';
-import { connectDB } from '@/lib/db';
+import workerPool from '../../../../lib/workerPool'
+import { SettingsModel } from '../../../../models/Settings';
+import { connectDB } from '../../../../lib/db';
 
 type QueueMode = 'fifo' | 'priority'
 

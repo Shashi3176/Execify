@@ -1,6 +1,6 @@
 'use client';
 
-import { getPoolStatusConfig, formatRelativeTime, shortenId } from '@/lib/dashboardUtils';
+import { getPoolStatusConfig, formatRelativeTime, shortenId } from '../../lib/dashboardUtils';
 
 interface PoolStatus {
   maxConcurrent: number;

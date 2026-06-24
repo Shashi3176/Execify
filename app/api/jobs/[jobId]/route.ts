@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { connectDB } from '@/lib/db';
-import { JobModel } from '@/models/Job';
+import { connectDB } from '../../../../lib/db';
+import { JobModel } from '../../../../models/Job';
 import mongoose from 'mongoose';
-import type { JobDocument } from '@/models/Job';
+import type { JobDocument } from '../../../../models/Job';
 
 export async function GET(request: NextRequest, { params }: { params: { jobId: string } }): Promise<NextResponse> {
   try {

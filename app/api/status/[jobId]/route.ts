@@ -1,6 +1,6 @@
-import { connectDB } from '@/lib/db';
-import { JobModel } from '@/models/Job';
-import type { JobDocument } from '@/models/Job';
+import { connectDB } from '../../../../lib/db';
+import { JobModel } from '../../../../models/Job';
+import type { JobDocument } from '../../../../models/Job';
 
 interface StatusUpdate {
   status: string;

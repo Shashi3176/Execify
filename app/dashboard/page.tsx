@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useToast } from '@/hooks/useToast'
-import { DashboardGridSkeleton, PoolStatusSkeleton } from '@/components/Skeleton'
-import ErrorBoundary from '@/components/ErrorBoundary'
-import SchedulingComparison from "@/components/SchedulingComparison";
-import ActivityFeed from "@/components/dashboard/ActivityFeed";
-import AnalyticsCards from "@/components/dashboard/AnalyticsCards";
-import ControlPanel from "@/components/dashboard/ControlPanel";
-import PoolStatusCard from "@/components/dashboard/PoolStatusCard";
+import { useToast } from '../../hooks/useToast'
+import { DashboardGridSkeleton, PoolStatusSkeleton } from '../../components/Skeleton'
+import ErrorBoundary from '../../components/ErrorBoundary'
+import SchedulingComparison from '../../components/SchedulingComparison'
+import ActivityFeed from '../../components/dashboard/ActivityFeed'
+import AnalyticsCards from '../../components/dashboard/AnalyticsCards'
+import ControlPanel from '../../components/dashboard/ControlPanel'
+import PoolStatusCard from '../../components/dashboard/PoolStatusCard'
 
 interface Job {
   _id: string;

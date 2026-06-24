@@ -1,11 +1,11 @@
   "use client"
 
 import { useState, useEffect, useCallback } from 'react'
-import JobsTable from '@/components/JobsTable'
-import HistoryFilterBar from '@/components/HistoryFilterBar'
-import JobDetailModal from '@/components/JobDetailModal'
-import { Job, TotalCounts } from '@/types'
-import ErrorBoundary from '@/components/ErrorBoundary'
+import JobsTable from '../../components/JobsTable'
+import HistoryFilterBar from '../../components/HistoryFilterBar'
+import JobDetailModal from '../../components/JobDetailModal'
+import { Job, TotalCounts } from '../../types'
+import ErrorBoundary from '../../components/ErrorBoundary'
 
 type ApiResponse = {
   jobs: Job[];

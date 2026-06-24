@@ -1,6 +1,6 @@
 'use client';
 
-import { TotalCounts } from '@/types';
+import { TotalCounts } from '../types';
 
 interface HistoryFilterBarProps {
   activeFilter: string;

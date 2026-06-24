@@ -1,6 +1,6 @@
 'use client';
 
-import { Job } from '@/types';
+import { Job } from '../types';
 
 // Job card component - will be implemented later
 

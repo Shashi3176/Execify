@@ -1,6 +1,6 @@
 'use client';
 
-import { formatRelativeTime, getStatusConfig, shortenId } from '@/lib/dashboardUtils';
+import { formatRelativeTime, getStatusConfig, shortenId } from '../../lib/dashboardUtils';
 
 interface Job {
   _id: string;

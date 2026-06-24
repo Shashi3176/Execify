@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import pidusage from 'pidusage';
-import { JobModel } from '@/models/Job';
+import { JobModel } from '../models/Job';
 import { connectDB } from './db';
 
 interface ExecutionResult{

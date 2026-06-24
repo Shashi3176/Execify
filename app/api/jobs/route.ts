@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
-import { JobModel } from '@/models/Job';
-import type { JobDocument } from '@/models/Job';
+import { connectDB } from '../../../lib/db';
+import { JobModel } from '../../../models/Job';
+import type { JobDocument } from '../../../models/Job';
 
 export async function GET(request: Request): Promise<NextResponse> {
   try {

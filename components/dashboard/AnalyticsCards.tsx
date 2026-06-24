@@ -1,6 +1,6 @@
 'use client';
 
-import { formatExecutionTime, formatMemory, formatWaitTime, formatSuccessRate } from '@/lib/dashboardUtils';
+import { formatExecutionTime, formatMemory, formatWaitTime, formatSuccessRate } from '../../lib/dashboardUtils';
 
 interface Analytics {
   totalSubmissions: number;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { JobModel } from '@/models/Job';
-import { connectDB } from '@/lib/db';
+import { JobModel } from '../../../../models/Job';
+import { connectDB } from '../../../../lib/db';
 
 export const dynamic = 'force-dynamic';
 

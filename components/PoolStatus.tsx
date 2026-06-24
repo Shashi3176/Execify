@@ -1,6 +1,6 @@
 'use client';
 
-import type { PoolStatus as PoolStatusType } from '@/types';
+import type { PoolStatus as PoolStatusType } from '../types';
 
 // Pool status component - will be implemented later
 

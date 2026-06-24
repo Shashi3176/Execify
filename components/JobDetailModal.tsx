@@ -7,8 +7,8 @@ import {
   formatMemory,
   getStatusConfig,
   getLanguageConfig,
-} from '@/lib/historyUtils'
-import { Job } from '@/types'
+} from '../lib/historyUtils'
+import { Job } from '../types'
 
 interface JobDetailModalProps {
   job: Job | null;

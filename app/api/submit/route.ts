@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { connectDB } from '../../../lib/db'
-import { JobModel } from '@/models/Job'
-import workerPool from '@/lib/workerPool'
+import { JobModel } from '../../../models/Job'
+import workerPool from '../../../lib/workerPool'
 
 interface SubmitBody {
   code: string;

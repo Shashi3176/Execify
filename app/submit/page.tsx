@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import CodeEditor from '@/components/CodeEditor'
-import LanguageSelector from '@/components/LanguageSelector'
-import PrioritySelector from '@/components/PrioritySelector'
-import JobStatusCard from '@/components/JobStatusCard'
-import ErrorBoundary from '@/components/ErrorBoundary'
-import { useToast } from '@/hooks/useToast'
+import CodeEditor from '../../components/CodeEditor'
+import LanguageSelector from '../../components/LanguageSelector'
+import PrioritySelector from '../../components/PrioritySelector'
+import JobStatusCard from '../../components/JobStatusCard'
+import ErrorBoundary from '../../components/ErrorBoundary'
+import { useToast } from '../../hooks/useToast'
 
 export default function SubmitPage() {
   const [code, setCode] = useState('console.log("Hello, Execify!")')

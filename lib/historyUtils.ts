@@ -1,4 +1,4 @@
-import { Job } from '@/types';
+import { Job } from '../types';
 
 export function formatRelativeTime(dateString: string | Date | null | undefined): string {
   if (!dateString) return "—"

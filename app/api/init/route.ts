@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import workerPool from '@/lib/workerPool'
+import workerPool from '../../../lib/workerPool'
 
 export async function GET(): Promise<NextResponse> {
   try {

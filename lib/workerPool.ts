@@ -1,7 +1,7 @@
-import { executeJob } from "./executor";
-import { JobModel } from "@/models/Job";
-import { connectDB } from "./db";
-import { SettingsModel } from "@/models/Settings";
+import { executeJob } from './executor';
+import { JobModel } from '../models/Job';
+import { connectDB } from './db';
+import { SettingsModel } from '../models/Settings';
 
 interface JobQueueItem{
     jobId: string

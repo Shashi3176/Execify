@@ -1,7 +1,7 @@
 "use client"
 
-import { formatRelativeTime, formatExecutionTime, formatMemory, shortenId, getStatusConfig, getLanguageConfig } from '@/lib/historyUtils'
-import { Job } from '@/types'
+import { formatRelativeTime, formatExecutionTime, formatMemory, shortenId, getStatusConfig, getLanguageConfig } from '../lib/historyUtils'
+import { Job } from '../types'
 
 interface JobsTableProps {
   jobs: Job[];

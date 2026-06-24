@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { useToast } from '@/hooks/useToast'
-import Toast from '@/components/Toast'
+import { useToast } from '../hooks/useToast'
+import Toast from './Toast'
 
 export default function ToastContainer() {
   const { toasts, dismissToast, dismissAll } = useToast()
